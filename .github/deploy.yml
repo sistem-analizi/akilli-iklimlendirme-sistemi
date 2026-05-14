@@ -1,0 +1,75 @@
+name: Build and Deploy to FTP
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build project
+        run: npm run build
+        env:
+          CI: false
+
+      - name: Parse FTP URI
+        id: ftp
+        env:
+          FTP_URI: ${{ secrets.FTP_URI }}
+        run: |
+          python3 <<'EOF'
+          import os, urllib.parse, sys
+          uri = os.environ.get("FTP_URI", "").strip()
+          if not uri:
+              print("::error::FTP_URI secret is empty"); sys.exit(1)
+          p = urllib.parse.urlparse(uri)
+          scheme = (p.scheme or "ftp").lower()
+          if scheme not in ("ftp", "ftps", "sftp"):
+              print(f"::error::Unsupported scheme: {scheme}"); sys.exit(1)
+          host = p.hostname or ""
+          if not host:
+              print("::error::FTP_URI must include a host"); sys.exit(1)
+          port = p.port or (22 if scheme == "sftp" else 21)
+          user = urllib.parse.unquote(p.username or "")
+          pwd  = urllib.parse.unquote(p.password or "")
+          path = p.path if p.path else "/"
+          if not path.endswith("/"):
+              path += "/"
+          out = os.environ["GITHUB_OUTPUT"]
+          with open(out, "a") as f:
+              f.write(f"server={host}\n")
+              f.write(f"port={port}\n")
+              f.write(f"protocol={scheme}\n")
+              f.write(f"server_dir={path}\n")
+          # Mask sensitive parts in logs
+          if user: print(f"::add-mask::{user}")
+          if pwd:  print(f"::add-mask::{pwd}")
+          # Username/password go via env to the next step (not echoed)
+          with open(os.environ["GITHUB_ENV"], "a") as f:
+              f.write(f"FTP_USER={user}\n")
+              f.write(f"FTP_PASS={pwd}\n")
+          EOF
+
+      - name: Deploy to FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ steps.ftp.outputs.server }}
+          port: ${{ steps.ftp.outputs.port }}
+          protocol: ${{ steps.ftp.outputs.protocol }}
+          server-dir: ${{ steps.ftp.outputs.server_dir }}
+          username: ${{ env.FTP_USER }}
+          password: ${{ env.FTP_PASS }}
+          local-dir: ./build/
