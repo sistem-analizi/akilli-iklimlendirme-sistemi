@@ -18,7 +18,7 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm ci
+        run: npm install --no-audit --no-fund
 
       - name: Build project
         run: npm run build
@@ -73,3 +73,4 @@ jobs:
           username: ${{ env.FTP_USER }}
           password: ${{ env.FTP_PASS }}
           local-dir: ./build/
+          dangerous-clean-slate: true
