@@ -15,7 +15,7 @@ function Layout({ user }) {
       navigate("/login");
     } catch (error) {
       console.error("Çıkış hatası:", error);
-    }dsfjds;
+    }
   };
 
   const isActive = (path) => {
