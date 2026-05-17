@@ -65,7 +65,7 @@ function LoginPage() {
         </button>
 
         <p style={styles.text}>
-          HESABINIZ yok mu?{" "}
+          Hesabınız yok mu?{" "}
           <Link to="/register" style={styles.link}>
             Kayıt ol
           </Link>

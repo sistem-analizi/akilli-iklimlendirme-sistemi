@@ -352,7 +352,7 @@ function DashboardPage() {
 
               <div style={styles.sliderCard}>
                 <div style={styles.sliderHeader}>
-                  <strong>Ampul Parlaklığı</strong>
+                  <strong>Isı Seviyesi</strong>
                   <span>{displayedAmpul ? ampulPwm : 0}</span>
                 </div>
 
