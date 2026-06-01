@@ -10,44 +10,46 @@ import ReferenceSettingsPage from "./pages/ReferenceSettingsPage";
 import RegisterPage from "./pages/RegisterPage";
 
 export const createAppRouter = (user) =>
-  createBrowserRouter([
-    {
-      path: "/login",
-      element: <LoginPage user={user} />,
-    },
-    {
-      path: "/register",
-      element: <RegisterPage />,
-    },
-    {
-      path: "/",
-      element: (
-        <ProtectedRoute user={user}>
-          <Layout user={user} />
-        </ProtectedRoute>
-      ),
-      children: [
-        {
-          index: true,
-          element: <DashboardPage />,
-        },
-        {
-          path: "sensor-history",
-          element: <SensorHistoryPage />,
-        },
-        {
-          path: "device-history",
-          element: <DeviceHistoryPage />,
-        },
-        {
-          path: "reference-history",
-          element: <ReferenceHistoryPage />,
-        },
-        {
-          path: "reference-settings",
-          element: <ReferenceSettingsPage />,
-        },
-        
-      ],
-    },
-  ]);
+  createBrowserRouter(
+    [
+      {
+        path: "/login",
+        element: <LoginPage user={user} />,
+      },
+      {
+        path: "/register",
+        element: <RegisterPage />,
+      },
+      {
+        path: "/",
+        element: (
+          <ProtectedRoute user={user}>
+            <Layout user={user} />
+          </ProtectedRoute>
+        ),
+        children: [
+          {
+            index: true,
+            element: <DashboardPage />,
+          },
+          {
+            path: "sensor-history",
+            element: <SensorHistoryPage />,
+          },
+          {
+            path: "device-history",
+            element: <DeviceHistoryPage />,
+          },
+          {
+            path: "reference-history",
+            element: <ReferenceHistoryPage />,
+          },
+          {
+            path: "reference-settings",
+            element: <ReferenceSettingsPage />,
+          },
+        ],
+      },
+    ],
+    { basename: process.env.PUBLIC_URL }
+  );
